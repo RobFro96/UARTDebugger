@@ -1,0 +1,1 @@
+python uart_debugger.py com3 com6
