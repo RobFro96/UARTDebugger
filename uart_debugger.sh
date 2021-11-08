@@ -1,1 +1,1 @@
-python uart_debugger.py com3 com6
+python uart_debugger.py "^MSP Application UART"

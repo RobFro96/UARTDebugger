@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import threading
-import time
-import serial
 import datetime
+import logging
 import platform
 import re
-import logging
+import threading
+import time
+
 import coloredlogs
+import serial
+import serial.tools.list_ports
 
 coloredlogs.install(fmt='%(asctime)s,%(msecs)03d %(message)s',
                     datefmt='%H:%M:%S',
@@ -65,11 +67,17 @@ class SerialThread(threading.Thread):
         logging.info(msg)
 
 
+def has_thread(port, threads):
+    for t in threads:
+        if t.port == port:
+            return True
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="UART DEBUGGER\nPrinting the received data of serial ports.")
-    parser.add_argument("ports", action="store", type=str,
-                        nargs="+", help="Serial ports to listen.")
+    parser.add_argument("regex", action="store", type=str, help="Regex to match port's name")
     parser.add_argument("-b", "--baud", type=int, action="store", default=9600,
                         help="baud rate of serial ports.")
     parser.add_argument("-d", "--delay", type=float, action="store", default=.5,
@@ -80,16 +88,19 @@ def main():
     args = parser.parse_args()
     event = threading.Event()
 
-    for port in args.ports:
-        thread = SerialThread(port, args, event)
-        thread.start()
+    threads = []
 
-    while True:
-        try:
-            time.sleep(1)
-        except KeyboardInterrupt:
-            event.set()
-            break
+    try:
+        while True:
+            for port, descr, _ in serial.tools.list_ports.comports():
+                if re.match(args.regex, descr) and not has_thread(port, threads):
+                    t = SerialThread(port, args, event)
+                    t.start()
+                    threads.append(t)
+            if event.wait(.1):
+                break
+    except KeyboardInterrupt:
+        event.set()
 
 
 if __name__ == "__main__":
