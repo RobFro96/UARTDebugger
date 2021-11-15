@@ -74,6 +74,10 @@ def has_thread(port, threads):
     return False
 
 
+def is_blacklisted(port: str, backlist):
+    return port.lower() in backlist.lower().split(",")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="UART DEBUGGER\nPrinting the received data of serial ports.")
@@ -84,6 +88,8 @@ def main():
                         help="Polling delay")
     parser.add_argument("-c", "--nocolors", action="store_true",
                         help="Disable the all colors and styles")
+    parser.add_argument("-x", "--blacklist", type=str, action="store", default="",
+                        help="Comma-separated list of backlisted port names")
 
     args = parser.parse_args()
     event = threading.Event()
@@ -93,7 +99,8 @@ def main():
     try:
         while True:
             for port, descr, _ in serial.tools.list_ports.comports():
-                if re.match(args.regex, descr) and not has_thread(port, threads):
+                if re.match(args.regex, descr) and not has_thread(port, threads) \
+                        and not is_blacklisted(port, args.blacklist):
                     t = SerialThread(port, args, event)
                     t.start()
                     threads.append(t)

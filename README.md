@@ -19,6 +19,7 @@ This program can watch multiple COM ports at a time. On disconnect, the program 
   - `--baud 9999`: baud rate of serial ports. Default: 9600
   - `--delay 0.999`: polling delay on disconnect. Default: 0.5 [sec]
   - `--nocolors`: disable the all colors and styles
+  - `--blacklist COM1,COM2`: comma-separated list of backlisted port names
 - Followed by a regex to match the COM port descriptions
 - Example: `python uart_debugger.py --baud 115200 --nocolors ^MSP Application UART`
 - Optional: Add a link to your Programs List
