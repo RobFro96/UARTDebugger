@@ -64,6 +64,10 @@ class SerialThread(threading.Thread):
         if self.args.nocolors:
             ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
             msg = ansi_escape.sub("", msg)
+
+        if not self.args.nosymbols:
+            msg = msg.replace("\\chk", "\u2713")
+
         logging.info(msg)
 
 
@@ -88,6 +92,8 @@ def main():
                         help="Polling delay")
     parser.add_argument("-c", "--nocolors", action="store_true",
                         help="Disable the all colors and styles")
+    parser.add_argument("-s", "--nosymbols", action="store_true",
+                        help="Disable all special symbols replaced in the terminal output")
     parser.add_argument("-x", "--blacklist", type=str, action="store", default="",
                         help="Comma-separated list of backlisted port names")
 
