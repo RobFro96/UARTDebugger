@@ -56,7 +56,7 @@ class SerialThread(threading.Thread):
                 is_connected = False
 
     def print_line(self, msg):
-        msg = msg[:-2]
+        msg = msg.strip()
         time_str = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
         port = self.port.upper() if platform.system() == "Windows" else self.port
 
@@ -82,6 +82,10 @@ def is_blacklisted(port: str, backlist):
     return port.lower() in backlist.lower().split(",")
 
 
+def is_additional_port(port: str, ports):
+    return port.lower() in ports.lower().split(",")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="UART DEBUGGER\nPrinting the received data of serial ports.")
@@ -96,6 +100,8 @@ def main():
                         help="Disable all special symbols replaced in the terminal output")
     parser.add_argument("-x", "--blacklist", type=str, action="store", default="",
                         help="Comma-separated list of backlisted port names")
+    parser.add_argument("-p", "--ports", type=str, action="store", default="",
+                        help="Comma-separated list of additional port names")
 
     args = parser.parse_args()
     event = threading.Event()
@@ -105,8 +111,11 @@ def main():
     try:
         while True:
             for port, descr, _ in serial.tools.list_ports.comports():
-                if re.match(args.regex, descr) and not has_thread(port, threads) \
-                        and not is_blacklisted(port, args.blacklist):
+                if not has_thread(port, threads):
+                    continue
+                
+                if (re.match(args.regex, descr) and not is_blacklisted(port, args.blacklist)) \
+                        or is_additional_port(port, args.ports):
                     t = SerialThread(port, args, event)
                     t.start()
                     threads.append(t)
