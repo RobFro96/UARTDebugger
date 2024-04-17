@@ -58,27 +58,9 @@ class SerialSelectWindow:
         self.list_box_groups = tkinter.Listbox(self.window, height=1, selectmode="single")
         self.list_box_groups.pack(side="top", fill="both", expand=True, pady=5)
 
-        # Port Label and Listbox
-        tkinter.Label(self.window, text="Single Serial Port",
-                      anchor="w").pack(side="top", fill="x", pady=5)
-        self.list_box = tkinter.Listbox(self.window, height=1, selectmode="single")
-        self.list_box.pack(side="top", fill="both", expand=True, pady=5)
-
-        # Buttons at the bottom
-        control_frame = tkinter.Frame(self.window)
-        control_frame.pack(side="bottom", fill="x", pady=5)
-
-        tkinter.Button(control_frame, text="Refresh",
-                       command=self.__refresh_ports).pack(side="left", padx=5)
-        tkinter.Button(control_frame, text="Cancel",
-                       command=self.__on_cancel).pack(side="left", padx=5)
-
-        self.list_box.bind('<Double-Button>', self.__on_submit_single_port)
-        self.list_box_groups.bind('<Double-Button>', self.__on_submit_group)
-
         # Baud rate selection
         baud_frame = tkinter.Frame(self.window)
-        baud_frame.pack(side="bottom", fill="x", pady=5)
+        baud_frame.pack(side="top", fill="x", pady=5)
         self.baud_rate_selection = tkinter.IntVar(value=-1)
 
         for baudrate in config.radio_box_baudrates:
@@ -96,6 +78,24 @@ class SerialSelectWindow:
         self.custom_baud_rate = tkinter.StringVar(value="19200")
         tkinter.Entry(
             baud_frame, textvariable=self.custom_baud_rate, width=7).pack(side="left", padx=5)
+
+        # Port Label and Listbox
+        tkinter.Label(self.window, text="Single Serial Port",
+                      anchor="w").pack(side="top", fill="x", pady=5)
+        self.list_box = tkinter.Listbox(self.window, height=1, selectmode="single")
+        self.list_box.pack(side="top", fill="both", expand=True, pady=5)
+
+        # Buttons at the bottom
+        control_frame = tkinter.Frame(self.window)
+        control_frame.pack(side="bottom", fill="x", pady=5)
+
+        tkinter.Button(control_frame, text="Refresh",
+                       command=self.__refresh_ports).pack(side="left", padx=5)
+        tkinter.Button(control_frame, text="Cancel",
+                       command=self.__on_cancel).pack(side="left", padx=5)
+
+        self.list_box.bind('<Double-Button>', self.__on_submit_single_port)
+        self.list_box_groups.bind('<Double-Button>', self.__on_submit_group)
 
         # Window size
         if config.dpi_aware:
