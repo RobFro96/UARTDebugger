@@ -43,7 +43,9 @@ class SerialThread(threading.Thread):
         is_connected = False
         while not self.event.wait(config.delay):
             try:
-                connection = serial.Serial(self.port.port, self.port.baudrate, timeout=config.delay)
+                connection = serial.Serial(
+                    self.port.port, self.port.baudrate, timeout=config.delay)
+                connection.setDTR(False)
                 self.print_line(b"\033[90mconnected")
                 is_connected = True
                 while not self.event.wait(1e-3):
